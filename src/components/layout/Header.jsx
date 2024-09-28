@@ -1,13 +1,57 @@
 'use client'
 
 import Link from 'next/link'
+import { signOut, useSession } from 'next-auth/react'
 import { useState } from 'react'
 
 import Bars2 from '../icons/Bars2'
 import ShoppingCart from '../icons/ShoppingCart'
 
+function AuthLinks({ status, userName }) {
+	console.log(status)
+
+	if (status === 'authenticated') {
+		return (
+			<>
+				<Link href={'/profile'} className='whitespace-nowrap'>
+					Hello, {userName}
+				</Link>
+				<button
+					onClick={() => signOut()}
+					className='bg-primary rounded-full text-white px-8 py-2'
+				>
+					Logout
+				</button>
+			</>
+		)
+	}
+
+	if (status === 'unauthenticated') {
+		return (
+			<>
+				<Link href={'/login'}>Login</Link>
+				<Link
+					href={'/register'}
+					className='bg-primary rounded-full text-white px-8 py-2'
+				>
+					Register
+				</Link>
+			</>
+		)
+	}
+}
+
 export default function Header() {
+	const session = useSession()
+	const status = session?.status
+	const userData = session.data?.user
+	let userName = userData?.name || userData?.email
+
 	const [mobileNavOpen, setMobileNavOpen] = useState(false)
+
+	if (userName && userName.includes(' ')) {
+		userName = userName.split(' ')[0]
+	}
 
 	return (
 		<header>
@@ -36,8 +80,7 @@ export default function Header() {
 					<Link href={'/menu'}>Menu</Link>
 					<Link href={'/#about'}>About</Link>
 					<Link href={'/#contact'}>Contact</Link>
-					<Link href={'/register'}>Register</Link>
-					<Link href={'/login'}>Login</Link>
+					<AuthLinks status={status} userName={userName} />
 				</div>
 			)}
 			<div className='hidden md:flex items-center justify-between'>
@@ -51,13 +94,7 @@ export default function Header() {
 					<Link href={'/#contact'}>Contact</Link>
 				</nav>
 				<nav className='flex items-center gap-4 text-gray-500 font-semibold'>
-					<Link
-						className='text-primary font-semibold text-4md'
-						href={'/register'}
-					>
-						Register
-					</Link>
-					<Link href={'/login'}>Login</Link>
+					<AuthLinks status={status} userName={userName} />
 					<Link href={'/cart'} className='relative'>
 						<ShoppingCart />
 					</Link>

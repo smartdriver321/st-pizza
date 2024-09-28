@@ -1,6 +1,7 @@
 import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { MongoDBAdapter } from '@auth/mongodb-adapter'
+
 import * as mongoose from 'mongoose'
 import bcrypt from 'bcrypt'
 
