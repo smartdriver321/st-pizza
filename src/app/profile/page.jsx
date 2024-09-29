@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import UserForm from '@/components/layout/UserForm'
+import UserTabs from '@/components/layout/UserTabs'
 
 export default function ProfilePage() {
 	const session = useSession()
@@ -13,6 +14,7 @@ export default function ProfilePage() {
 
 	const [user, setUser] = useState(null)
 	const [profileFetched, setProfileFetched] = useState(false)
+	const [isAdmin, setIsAdmin] = useState(false)
 
 	useEffect(() => {
 		if (status === 'authenticated') {
@@ -20,6 +22,7 @@ export default function ProfilePage() {
 				response.json().then((data) => {
 					setUser(data)
 					setProfileFetched(true)
+					setIsAdmin(data.admin)
 				})
 			})
 		}
@@ -55,6 +58,7 @@ export default function ProfilePage() {
 
 	return (
 		<section className='mt-8'>
+			<UserTabs isAdmin={isAdmin} />
 			<div className='max-w-2xl mx-auto mt-8'>
 				<UserForm user={user} onSave={handleProfileInfoUpdate} />
 			</div>
