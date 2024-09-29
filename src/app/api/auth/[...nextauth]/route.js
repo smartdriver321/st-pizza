@@ -1,4 +1,4 @@
-import NextAuth from 'next-auth'
+import NextAuth, { getServerSession } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
 import { MongoDBAdapter } from '@auth/mongodb-adapter'
@@ -8,6 +8,7 @@ import bcrypt from 'bcrypt'
 
 import clientPromise from '@/lib/mongoConnect'
 import { User } from '@/models/User'
+import { UserInfo } from '@/models/UserInfo'
 
 export const authOptions = {
 	secret: process.env.SECRET,
@@ -28,6 +29,7 @@ export const authOptions = {
 				},
 				password: { label: 'Password', type: 'password' },
 			},
+			// eslint-disable-next-line no-unused-vars
 			async authorize(credentials, req) {
 				mongoose.connect(process.env.MONGO_URL)
 
@@ -45,6 +47,22 @@ export const authOptions = {
 			},
 		}),
 	],
+}
+
+export async function isAdmin() {
+	const session = await getServerSession(authOptions)
+	const userEmail = session?.user?.email
+
+	if (!userEmail) {
+		return false
+	}
+
+	const userInfo = await UserInfo.findOne({ email: userEmail })
+
+	if (!userInfo) {
+		return false
+	}
+	return userInfo.admin
 }
 
 const handler = NextAuth(authOptions)
